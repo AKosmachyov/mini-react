@@ -4,7 +4,7 @@ const element = MiniReact.createElement(
   'div',
   { id: '1' },
   MiniReact.createElement('a', undefined, 'home'),
-  MiniReact.createElement('b')
+  MiniReact.createElement('b', undefined, 'test')
 )
 // const element = (
 //   <div id="1">
