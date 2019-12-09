@@ -1,4 +1,4 @@
-import MiniReact from '../index.js';
+import MiniReact from '../source/index.js';
 
 const element = MiniReact.createElement(
   'div',
@@ -9,7 +9,7 @@ const element = MiniReact.createElement(
 // const element = (
 //   <div id="1">
 //     <a>home</a>
-//     <b />
+//     <b>test</b>
 //   </div>
 // )
 

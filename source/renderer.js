@@ -1,44 +1,4 @@
-function createElement(type, props, ...children) {
-  return {
-    type,
-    props: {
-      ...props,
-      children: children.map(child =>
-        typeof child === 'object'
-          ? child
-          : createTextElement(child))
-    }
-  }
-}
-
-const TEXT_ELEMENT = 'TEXT_ELEMENT';
-
-function createTextElement(text) {
-  return {
-    type: TEXT_ELEMENT,
-    props: {
-      nodeValue: text,
-      children: []
-    }
-  }
-}
-
-const needIgnoreProperty = key => key !== 'children';
-
-function createDom(fiber) {
-  const dom =
-    fiber.type == 'TEXT_ELEMENT'
-      ? document.createTextNode('')
-      : document.createElement(fiber.type)
-
-  Object.keys(fiber.props)
-    .filter(needIgnoreProperty)
-    .forEach(name => {
-      dom[name] = fiber.props[name]
-    })
-
-  return dom
-}
+import { createDom } from './dom.js';
 
 let nextUnitOfWork = null
 let wipRoot = null // the root of the fiber tree
@@ -52,21 +12,7 @@ function render(element, container) {
   }
 
   nextUnitOfWork = wipRoot;
-}
-
-function commitRoot() {
-  commitWork(wipRoot.child)
-  wipRoot = null
-}
-
-function commitWork(fiber) {
-  if (!fiber) {
-    return
-  }
-  const domParent = fiber.parent.dom
-  domParent.appendChild(fiber.dom)
-  commitWork(fiber.child)
-  commitWork(fiber.sibling)
+  requestIdleCallback(workLoop)
 }
 
 function workLoop(deadline) {
@@ -84,16 +30,10 @@ function workLoop(deadline) {
   requestIdleCallback(workLoop)
 }
 
-requestIdleCallback(workLoop)
-
 function performUnitOfWork(fiber) {
   if (!fiber.dom) {
     fiber.dom = createDom(fiber)
   }
-
-  // if (fiber.parent) {
-  //   fiber.parent.dom.appendChild(fiber.dom)
-  // }
 
   const elements = fiber.props.children
   let index = 0
@@ -133,9 +73,21 @@ function performUnitOfWork(fiber) {
   }
 }
 
-const MiniReact = {
-  createElement,
-  render
+function commitRoot() {
+  commitWork(wipRoot.child)
+  wipRoot = null
 }
 
-export default MiniReact;
+function commitWork(fiber) {
+  if (!fiber) {
+    return
+  }
+  const domParent = fiber.parent.dom
+  domParent.appendChild(fiber.dom)
+  commitWork(fiber.child)
+  commitWork(fiber.sibling)
+}
+
+export {
+  render
+}
